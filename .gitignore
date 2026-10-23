@@ -1,12 +1,20 @@
-.env
-.venv/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Секрети та локальні налаштування
+.env
+*.env.local
+
+# Flet / збірки
+build/
+dist/
+.flet/
+
+# IDE / ОС
 .idea/
 .vscode/
-.vs/
-.venv/
-.env
-*.db
-__pycache__/
-.pytest_cache/
+.DS_Store
