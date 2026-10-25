@@ -6,3 +6,4 @@ from app.models.conversion_history import ConversionHistory
 from app.models.currency_rate import CurrencyRate
 from app.models.crypto_rate import CryptoRate
 from app.models.metal_rate import MetalRate
+from app.models.news import News
