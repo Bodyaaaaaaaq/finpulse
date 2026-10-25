@@ -1,21 +1,33 @@
 import logging
 
 from app.services.coingecko import update_crypto_rates
+from app.services.metals import update_metal_rates
 from app.services.nbu import update_currency_rates
 
 logger = logging.getLogger(__name__)
 
 
+def _run(name: str, func) -> None:
+    try:
+        logger.info("%s rates updated: %s", name, func())
+    except Exception:
+        logger.exception("%s rates update failed", name)
+
+
+def update_fast_rates() -> None:
+    """Валюти та крипта: кожні 10 хв."""
+    _run("currency", update_currency_rates)
+    _run("crypto", update_crypto_rates)
+
+
+def update_metals() -> None:
+    """Метали: раз на годину."""
+    _run("metals", update_metal_rates)
+
+
 def update_all_rates() -> None:
-    for name, func in (
-        ("currency", update_currency_rates),
-        ("crypto", update_crypto_rates),
-    ):
-        try:
-            count = func()
-            logger.info("%s rates updated: %s", name, count)
-        except Exception:
-            logger.exception("%s rates update failed", name)
+    update_fast_rates()
+    update_metals()
 
 
 if __name__ == "__main__":
