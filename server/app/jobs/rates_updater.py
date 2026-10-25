@@ -7,7 +7,7 @@ from app.services.news import update_news
 logger = logging.getLogger(__name__)
 
 def update_news_job() -> None:
-    """Новини: кожні 30 хв.""""
+    """Новини: кожні 30 хв."""
     _run("news", update_news)
     
 def _run(name: str, func) -> None:
