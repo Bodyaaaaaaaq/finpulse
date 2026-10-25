@@ -4,12 +4,13 @@ from app.services.coingecko import update_crypto_rates
 from app.services.metals import update_metal_rates
 from app.services.nbu import update_currency_rates
 from app.services.news import update_news
+
 logger = logging.getLogger(__name__)
 
 def update_news_job() -> None:
     """Новини: кожні 30 хв."""
     _run("news", update_news)
-    
+
 def _run(name: str, func) -> None:
     try:
         logger.info("%s rates updated: %s", name, func())

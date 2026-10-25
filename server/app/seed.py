@@ -135,7 +135,12 @@ def seed_rewards(db) -> None:
         return
     db.add_all(
         [
-            Reward(title="Стікерпак FinPulse", description="Набір наклейок з логотипом проєкту.", cost_points=50, stock=20),
+            Reward(
+                title="Стікерпак FinPulse",
+                description="Набір наклейок з логотипом проєкту.",
+                cost_points=50,
+                stock=20,
+            ),
             Reward(title="Брендована кружка", description="Керамічна кружка FinPulse.", cost_points=150, stock=10),
             Reward(title="Футболка FinPulse", description="Футболка з принтом проєкту.", cost_points=300, stock=5),
         ]

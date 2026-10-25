@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+
 # Саме starlette-версія ловить і наші помилки, і 404 на неіснуючі адреси
 from starlette.exceptions import HTTPException
 
