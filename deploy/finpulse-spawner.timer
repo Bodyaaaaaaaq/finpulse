@@ -1,0 +1,9 @@
+[Unit]
+Description=Run FinPulse game spawner hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

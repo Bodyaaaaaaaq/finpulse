@@ -25,3 +25,12 @@ journalctl -u finpulse -f
 ```
 
 Міграції не запускаються автоматично при рестарті, їх виконують вручну.
+
+## Крон генерації предметів (GD-3)
+
+```bash
+sudo cp /opt/finpulse/deploy/finpulse-spawner.* /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now finpulse-spawner.timer
+systemctl list-timers | grep finpulse
+```
