@@ -1,0 +1,10 @@
+[Unit]
+Description=FinPulse: generate game items
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+User=finpulse
+WorkingDirectory=/opt/finpulse/server
+EnvironmentFile=/opt/finpulse/server/.env
+ExecStart=/opt/finpulse/server/.venv/bin/python -m app.jobs.game_spawner
