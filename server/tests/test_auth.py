@@ -102,7 +102,8 @@ def test_sixth_failed_login_returns_429_even_with_correct_password():
     register(new_client())
     client = new_client()
     for _ in range(5):
-        assert client.post("/api/auth/login", json={"email": USER["email"], "password": "wrong-pass"}).status_code == 401
+        response = client.post("/api/auth/login", json={"email": USER["email"], "password": "wrong-pass"})
+        assert response.status_code == 401
 
     response = client.post("/api/auth/login", json={"email": USER["email"], "password": "password123"})
     assert response.status_code == 429
