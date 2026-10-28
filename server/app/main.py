@@ -9,7 +9,7 @@ from sqlalchemy import text
 
 from app.dependencies import DbSession
 from app.middleware.errors import register_error_handlers
-from app.routers import auth, profile
+from app.routers import auth, crypto, currency, metals, news, profile
 
 app = FastAPI(
     title="FinPulse API",
@@ -29,8 +29,12 @@ def health(db: DbSession):
     return {"status": "ok", "database": "ok"}
 
 
-# Роутери. Далі тут з'являться currency, crypto, metals, news (BE-4)...
+# Роутери. Далі тут з'являться converter (BE-5), game (BE-6), shop (BE-7)
 api.include_router(auth.router)
 api.include_router(profile.router)
+api.include_router(currency.router)
+api.include_router(crypto.router)
+api.include_router(metals.router)
+api.include_router(news.router)
 
 app.include_router(api)
