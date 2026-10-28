@@ -31,7 +31,8 @@ def register_error_handlers(app: FastAPI) -> None:
 def _validation_message(error: dict) -> str:
     """Перетворює помилку Pydantic на зрозумілий текст українською (його показує фронтенд)."""
     kind = error["type"]
-    field = ".".join(str(p) for p in error["loc"] if p != "body")
+    # loc виглядає як ("body", "email") або ("query", "limit"); перше слово користувачу не потрібне
+    field = ".".join(str(p) for p in error["loc"] if p not in ("body", "query", "path"))
     ctx = error.get("ctx", {})
 
     if kind == "json_invalid":
@@ -44,6 +45,14 @@ def _validation_message(error: dict) -> str:
         return f"Поле {field} закоротке: мінімум {ctx.get('min_length')} символів"
     if kind == "string_too_long":
         return f"Поле {field} задовге: максимум {ctx.get('max_length')} символів"
+    if kind in ("greater_than_equal", "greater_than"):
+        return f"Поле {field} замале: мінімум {ctx.get('ge', ctx.get('gt'))}"
+    if kind in ("less_than_equal", "less_than"):
+        return f"Поле {field} завелике: максимум {ctx.get('le', ctx.get('lt'))}"
+    if kind == "int_parsing":
+        return f"Поле {field} має бути цілим числом"
+    if kind == "enum":
+        return f"Неправильне значення {field}: можливі {ctx.get('expected')}"
     if kind == "value_error":
         # Наші власні перевірки в схемах пишуть текст українською: raise ValueError("...")
         return str(ctx.get("error", "")) or f"Неправильні дані: {field}"
