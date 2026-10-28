@@ -10,6 +10,7 @@ import pkgutil
 from pathlib import Path
 
 import pytest
+from sqlalchemy import event
 
 TEST_DB_FILE = Path(__file__).resolve().parent.parent / "test.db"
 
@@ -33,6 +34,13 @@ def prepare_database():
 
     _load_all_models()
     if engine.dialect.name == "sqlite":
+        # SQLite за замовчуванням ігнорує зовнішні ключі (CASCADE, SET NULL).
+        # Вмикаємо, щоб тести поводилися як PostgreSQL.
+        @event.listens_for(engine, "connect")
+        def _enable_foreign_keys(dbapi_connection, _record):
+            dbapi_connection.execute("PRAGMA foreign_keys=ON")
+
+        engine.dispose()  # нові з'єднання вже з увімкненими зовнішніми ключами
         # Локально: щоразу чиста база з моделей
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
