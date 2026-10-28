@@ -9,6 +9,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
+from app.routers import auth
 from app.middleware.errors import register_error_handlers
 
 app = FastAPI(
@@ -29,8 +30,7 @@ def health(db: Session = Depends(get_db)):
     return {"status": "ok", "database": "ok"}
 
 
-# Тут підключатимуться роутери: auth (BE-2), profile (BE-3), currency... (BE-4)
-# from app.routers import auth
-# api.include_router(auth.router)
+# Роутери. Далі тут з'являться profile (BE-3), currency... (BE-4)
+api.include_router(auth.router)
 
 app.include_router(api)
