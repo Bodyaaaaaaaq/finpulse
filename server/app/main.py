@@ -4,13 +4,12 @@
 Запуск з терміналу (з папки server): uvicorn app.main:app --reload
 Swagger-документація: http://127.0.0.1:8000/api/docs
 """
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, FastAPI
 from sqlalchemy import text
-from sqlalchemy.orm import Session
 
-from app.dependencies import get_db
-from app.routers import auth
+from app.dependencies import DbSession
 from app.middleware.errors import register_error_handlers
+from app.routers import auth
 
 app = FastAPI(
     title="FinPulse API",
@@ -24,7 +23,7 @@ api = APIRouter(prefix="/api")
 
 
 @api.get("/health", tags=["service"])
-def health(db: Session = Depends(get_db)):
+def health(db: DbSession):
     """Перевірка, що сервер працює і бачить базу даних."""
     db.execute(text("SELECT 1"))
     return {"status": "ok", "database": "ok"}

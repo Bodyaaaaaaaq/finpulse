@@ -6,7 +6,7 @@ passlib не оновлюється з 2020 року і падає з поточ
 """
 import os
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import bcrypt
 from dotenv import load_dotenv
@@ -31,7 +31,7 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 def create_token(user_id: uuid.UUID) -> str:
-    expires = datetime.now(timezone.utc) + TOKEN_LIFETIME
+    expires = datetime.now(UTC) + TOKEN_LIFETIME
     return jwt.encode({"sub": str(user_id), "exp": expires}, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 

@@ -3,7 +3,7 @@
 Лічильник зберігається в пам'яті сервера, тож скидається після перезапуску.
 Для навчального проєкту з одним процесом сервера цього достатньо.
 """
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 MAX_ATTEMPTS = 5
 WINDOW = timedelta(minutes=15)
@@ -12,7 +12,7 @@ _failed: dict[str, list[datetime]] = {}
 
 
 def _recent(email: str) -> list[datetime]:
-    border = datetime.now(timezone.utc) - WINDOW
+    border = datetime.now(UTC) - WINDOW
     attempts = [t for t in _failed.get(email, []) if t > border]
     _failed[email] = attempts
     return attempts
@@ -24,12 +24,12 @@ def is_blocked(email: str) -> bool:
 
 def minutes_left(email: str) -> int:
     oldest = min(_recent(email))
-    seconds = (oldest + WINDOW - datetime.now(timezone.utc)).total_seconds()
+    seconds = (oldest + WINDOW - datetime.now(UTC)).total_seconds()
     return max(1, int(seconds // 60) + 1)
 
 
 def register_failure(email: str) -> None:
-    _recent(email).append(datetime.now(timezone.utc))
+    _recent(email).append(datetime.now(UTC))
 
 
 def reset(email: str) -> None:

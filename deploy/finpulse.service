@@ -1,0 +1,27 @@
+[Unit]
+Description=FinPulse backend (FastAPI, gunicorn + uvicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=finpulse
+Group=finpulse
+WorkingDirectory=/opt/finpulse/server
+EnvironmentFile=/opt/finpulse/server/.env
+ExecStart=/opt/finpulse/server/.venv/bin/gunicorn app.main:app \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --workers 2 \
+    --bind 127.0.0.1:8000 \
+    --access-logfile - \
+    --error-logfile -
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

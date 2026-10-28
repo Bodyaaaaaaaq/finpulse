@@ -1,17 +1,21 @@
 """Реєстрація, вхід, вихід, поточний користувач (ТЗ 5.2, задача BE-2)."""
 import os
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
-from app.dependencies import get_db
-from app.middleware.auth import TOKEN_COOKIE, get_current_user
+from app.dependencies import DbSession
+from app.middleware.auth import TOKEN_COOKIE, CurrentUser
 from app.models.user import User
 from app.schemas.auth import LoginRequest, RegisterRequest, UserOut
 from app.services import login_limiter
-from app.services.security import TOKEN_LIFETIME, create_token, hash_password, verify_password
+from app.services.security import (
+    TOKEN_LIFETIME,
+    create_token,
+    hash_password,
+    verify_password,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -31,7 +35,7 @@ def _set_token_cookie(response: Response, user: User) -> None:
 
 
 @router.post("/register", response_model=UserOut, status_code=201)
-def register(data: RegisterRequest, response: Response, db: Session = Depends(get_db)):
+def register(data: RegisterRequest, response: Response, db: DbSession):
     if db.scalar(select(User).where(User.email == data.email)):
         raise HTTPException(status_code=409, detail="Користувач з таким email уже існує")
 
@@ -50,7 +54,7 @@ def register(data: RegisterRequest, response: Response, db: Session = Depends(ge
 
 
 @router.post("/login", response_model=UserOut)
-def login(data: LoginRequest, response: Response, db: Session = Depends(get_db)):
+def login(data: LoginRequest, response: Response, db: DbSession):
     if login_limiter.is_blocked(data.email):
         minutes = login_limiter.minutes_left(data.email)
         raise HTTPException(status_code=429, detail=f"Забагато спроб входу. Спробуйте через {minutes} хв")
@@ -73,5 +77,5 @@ def logout(response: Response):
 
 
 @router.get("/me", response_model=UserOut)
-def me(user: User = Depends(get_current_user)):
+def me(user: CurrentUser):
     return user
