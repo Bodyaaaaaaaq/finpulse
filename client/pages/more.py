@@ -1,5 +1,6 @@
 import flet as ft
 
+from components.balance import balance_card
 from components.card import Card
 from components.header import Header
 from theme import NEGATIVE
@@ -22,7 +23,6 @@ def build(ctx) -> ft.Control:
     async def on_logout(e: ft.Event[ft.Button]) -> None:
         await ctx.logout()
 
-    # TODO (FE-2): блок «Ваш баланс» зверху, коли буде auth_state.user.
     items = [
         Card(
             ft.ListTile(
@@ -38,6 +38,7 @@ def build(ctx) -> ft.Control:
     return ft.Column(
         [
             Header("Інше"),
+            balance_card(),
             *items,
             ft.Button(content="Вийти", color=NEGATIVE, on_click=on_logout),
         ],
