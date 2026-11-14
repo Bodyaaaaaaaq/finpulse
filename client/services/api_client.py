@@ -1,10 +1,12 @@
 """Тонка обгортка над httpx для запитів до backend. Розширюється в FE-3…FE-9."""
-from typing import Any, Optional
+from typing import Any, Awaitable, Callable, Optional
 
 import httpx
 
-from config import API_BASE_URL
+from config import API_URL
 from state.auth_state import auth_state
+
+TOKEN_COOKIE = "token"  # назва cookie, яку ставить сервер (BE-2)
 
 
 class ApiError(Exception):
@@ -15,22 +17,32 @@ class ApiError(Exception):
 
 
 class ApiClient:
-    def __init__(self, base_url: str = API_BASE_URL, timeout: float = 10.0) -> None:
+    def __init__(self, base_url: str = API_URL, timeout: float = 10.0) -> None:
         self.base_url = base_url
         self.timeout = timeout
+        # Викликається, коли сервер відповів 401 для вже залогіненого (токен прострочений) — router веде на /login.
+        self.on_unauthorized: Optional[Callable[[], Awaitable[None]]] = None
 
     async def request(self, method: str, path: str, *, json: Any = None,
                       params: Optional[dict] = None) -> Any:
         headers = {}
         if auth_state.token:
-            headers["Authorization"] = f"Bearer {auth_state.token}"
+            # Сервер читає токен із cookie (ТЗ 5.1), а не з Authorization.
+            headers["Cookie"] = f"{TOKEN_COOKIE}={auth_state.token}"
         try:
             async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
                 response = await client.request(method, path, json=json, params=params, headers=headers)
         except httpx.HTTPError:
             raise ApiError("Не вдалося звʼязатися із сервером") from None
 
+        new_token = response.cookies.get(TOKEN_COOKIE)
+        if new_token:  # вхід або реєстрація: сервер видав токен
+            auth_state.token = new_token
+
         if response.status_code >= 400:
+            if response.status_code == 401 and auth_state.token and self.on_unauthorized:
+                auth_state.clear()
+                await self.on_unauthorized()
             message = "Сталася помилка"
             try:
                 body = response.json()

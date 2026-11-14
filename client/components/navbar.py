@@ -4,6 +4,8 @@ from typing import Optional
 
 import flet as ft
 
+from components.balance import rail_header
+
 
 @dataclass(frozen=True)
 class NavItem:
@@ -70,6 +72,7 @@ def build_navigation_rail(ctx, route: str) -> ft.NavigationRail:
 
     return ft.NavigationRail(
         selected_index=desktop_index(route),
+        leading=rail_header(),
         label_type=ft.NavigationRailLabelType.ALL,
         min_width=90,
         on_change=on_change,

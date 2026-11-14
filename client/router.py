@@ -8,7 +8,10 @@ from components.navbar import build_navigation_bar, build_navigation_rail
 from config import WIDE_BREAKPOINT
 from pages import (converter, crypto, game, home, login, more, my_rewards, news,
                    not_found, profile, register, shop)
+from services.api_client import api
+from services.session_service import sign_out
 from state.auth_state import auth_state
+from state.session_store import SessionStore
 from theme import BG
 
 
@@ -47,11 +50,16 @@ def normalize(route: Optional[str]) -> str:
 
 
 class Router:
-    """Також виступає контекстом `ctx` для сторінок: ctx.page, ctx.go(), ctx.logout()."""
+    """Також виступає контекстом `ctx` для сторінок: ctx.page, ctx.go(), ctx.login(user), ctx.logout()."""
 
-    def __init__(self, page: ft.Page) -> None:
+    def __init__(self, page: ft.Page, store: Optional[SessionStore] = None) -> None:
         self.page = page
+        self.store = store
         self._wide: Optional[bool] = None
+
+    def attach(self) -> None:
+        """Підписка на 401 від сервера: сесія прострочена -> на сторінку входу."""
+        api.on_unauthorized = self.session_expired
 
     # ---- допоміжне ----
     @property
@@ -61,7 +69,23 @@ class Router:
     async def go(self, route: str) -> None:
         await self.page.push_route(route)
 
+    async def login(self, user: dict) -> None:
+        """Викликається формою входу/реєстрації (FE-3) після успішного запиту: зберігає сесію й веде на головну."""
+        auth_state.set_user(user)
+        if self.store is not None and auth_state.token:
+            await self.store.save_token(auth_state.token)
+        await self.go("/")
+
     async def logout(self) -> None:
+        if self.store is not None:
+            await sign_out(self.store)
+        else:
+            auth_state.clear()
+        await self.go("/login")
+
+    async def session_expired(self) -> None:
+        if self.store is not None:
+            await self.store.clear()
         auth_state.clear()
         await self.go("/login")
 

@@ -1,6 +1,7 @@
 # FinPulse — клієнт (Flet)
 
-Каркас клієнта (задача **FE-1**): проєкт Flet, роутинг, адаптивна навігація, сторінка 404.
+Каркас клієнта (**FE-1**): проєкт Flet, роутинг, адаптивна навігація, сторінка 404.
+Шапка/навігація та стан сесії (**FE-2**): баланс у навігації, збереження входу, вихід, обробка 401.
 
 ## Запуск
 
@@ -40,6 +41,18 @@ flet run --web                   # у браузері
 - Ширина ≥ 720 px — бічна NavigationRail з усіма розділами і кнопкою «Вийти».
 - Не залогінений користувач на приватній сторінці потрапляє на `/login`, залогінений на `/login` потрапляє на `/`.
 
+## Сесія (FE-2)
+
+Сервер (BE-2) після входу/реєстрації ставить httpOnly-cookie `token` (JWT на 7 днів).
+
+- `services/api_client.py` читає `token` із `Set-Cookie` відповіді й додає його у `Cookie` кожного запиту. Усі адреси — відносно `API_BASE_URL + /api`.
+- `state/auth_state.py` — токен і дані користувача (`name`, `email`, `points`).
+- `state/session_store.py` — збереження токена між запусками (Flet `SharedPreferences`).
+- `services/session_service.py` — `restore_session` (при запуску перевіряє токен запитом `GET /auth/me`), `refresh_user` (оновити баланс), `sign_out` (`POST /auth/logout` + очищення).
+- Якщо сервер відповів 401 для залогіненого користувача (токен прострочений) — стан очищується й відкривається `/login`.
+- Для сторінок (`ctx`): `await ctx.login(user)` — викликати після успішного входу/реєстрації (FE-3), `await ctx.logout()` — вихід.
+- Баланс: десктоп — шапка NavigationRail (ім'я, бали), мобільний — картка «Ваш баланс» на сторінці «Інше»; після зміни балансу (збір предмета, обмін) викликайте `refresh_user()`.
+
 ## Структура
 
 ```
@@ -48,9 +61,9 @@ client/
 ├─ router.py          таблиця маршрутів, guard, 404, вибір навігації
 ├─ config.py, theme.py
 ├─ pages/             по файлу на сторінку (build(ctx) -> Control)
-├─ components/        Header, Card, LoadingSpinner, navbar, placeholder
-├─ services/          api_client.py
-├─ state/             auth_state.py
+├─ components/        Header, Card, LoadingSpinner, balance, navbar, placeholder
+├─ services/          api_client.py, session_service.py
+├─ state/             auth_state.py, session_store.py
 ├─ assets/
 └─ tests/
 ```
@@ -64,4 +77,4 @@ client/
 ## Тимчасове в FE-1
 
 - На `/login` є кнопка «Увійти (тимчасово)», яка вмикає фейкову сесію. Прибрати у FE-3.
-- Сесія зберігається тільки в памʼяті і зникає після перезавантаження. Збереження токена — FE-2.
+- Фейкова сесія з кнопки «Увійти (тимчасово)» не зберігається між запусками (токен `dev-token` недійсний для сервера). Справжній вхід і збереження — через `ctx.login(user)` (FE-3).

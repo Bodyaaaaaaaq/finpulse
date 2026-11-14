@@ -1,5 +1,9 @@
-"""Стан сесії користувача. У FE-1 — мінімальна версія в памʼяті;
-повноцінне збереження токена і завантаження профілю робиться в FE-2."""
+"""Стан сесії користувача (FE-2).
+
+Сервер (BE-2) після входу ставить httpOnly-cookie `token`. Клієнт зберігає це значення
+в `token` і додає його до кожного запиту (див. services/api_client.py), а між запусками
+програми — у SharedPreferences (state/session_store.py).
+"""
 from typing import Optional
 
 
@@ -12,8 +16,24 @@ class AuthState:
     def is_authenticated(self) -> bool:
         return self.token is not None
 
+    @property
+    def name(self) -> str:
+        return (self.user or {}).get("name") or ""
+
+    @property
+    def email(self) -> str:
+        return (self.user or {}).get("email") or ""
+
+    @property
+    def points(self) -> int:
+        return int((self.user or {}).get("points") or 0)
+
     def set_session(self, token: str, user: Optional[dict] = None) -> None:
         self.token = token
+        self.user = user
+
+    def set_user(self, user: Optional[dict]) -> None:
+        """Оновити дані користувача (після /auth/me, збору предмета, обміну балів тощо)."""
         self.user = user
 
     def clear(self) -> None:

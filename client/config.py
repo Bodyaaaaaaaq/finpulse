@@ -8,6 +8,8 @@ load_dotenv(Path(__file__).parent / ".env")
 
 APP_TITLE = "FinPulse"
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000").rstrip("/")
+# Усі адреси сервера починаються з /api (ТЗ 5.1)
+API_URL = f"{API_BASE_URL}/api"
 
 # Від цієї ширини вікна замість нижньої панелі показується NavigationRail (десктоп).
 WIDE_BREAKPOINT = 720
