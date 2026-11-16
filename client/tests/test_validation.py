@@ -54,3 +54,18 @@ def test_register_reports_first_error_in_field_order():
 
 def test_register_without_address_field():
     assert validate_register("Іван", "a@b.ua", "12345678", "12345678", None) is None
+
+
+def test_validate_password_change():
+    from services.validation import validate_password_change as v
+    assert v("", "newpass12") == "Введіть поточний пароль"
+    assert v("old", "") == "Введіть пароль"
+    assert v("old", "short").startswith("Пароль має містити")
+    assert v("samepass1", "samepass1") == "Новий пароль має відрізнятися від поточного"
+    assert v("oldpass1", "newpass12") is None
+
+
+def test_validate_delete_password():
+    from services.validation import validate_delete_password as v
+    assert v("") == "Введіть пароль для підтвердження"
+    assert v("x") is None

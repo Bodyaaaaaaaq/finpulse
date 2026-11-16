@@ -64,6 +64,21 @@ def primary_button(text: str, on_click) -> ft.Button:
     )
 
 
+def danger_button(text: str, on_click) -> ft.Button:
+    """Біла кнопка з червоним текстом («Видалити акаунт» у макеті)."""
+    return ft.Button(
+        content=text,
+        on_click=on_click,
+        height=52,
+        style=ft.ButtonStyle(
+            bgcolor="white",
+            color=NEGATIVE,
+            shape=ft.RoundedRectangleBorder(radius=26),
+            text_style=ft.TextStyle(size=17, weight=ft.FontWeight.W_600),
+        ),
+    )
+
+
 def link_button(text: str, on_click) -> ft.TextButton:
     return ft.TextButton(
         content=ft.Text(text, color=PRIMARY, weight=ft.FontWeight.W_600),
@@ -102,4 +117,15 @@ def auth_layout(ctx, controls: list, *, top_space: int = 0) -> ft.Control:
             ),
         ],
         horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+    )
+
+
+def page_column(ctx, controls: list, *, spacing: int = 12) -> ft.Control:
+    """Колонка сторінки: на мобільному — на всю ширину, на десктопі — по центру й не ширша за ~600 px."""
+    column = ft.Column(controls, spacing=spacing, horizontal_alignment=ft.CrossAxisAlignment.STRETCH)
+    if not getattr(ctx, "is_wide", False):
+        return column
+    return ft.ResponsiveRow(
+        [ft.Container(column, col={"xs": 12, "md": 9, "lg": 7, "xl": 5, "xxl": 4})],
+        alignment=ft.MainAxisAlignment.CENTER,
     )

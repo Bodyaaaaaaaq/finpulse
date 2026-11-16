@@ -57,3 +57,19 @@ def validate_register(name: str, email: str, password: str, confirm: str,
     if error is None and password != confirm:
         error = "Паролі не збігаються"
     return error
+
+
+def validate_password_change(old: str, new: str) -> Optional[str]:
+    """Форма «Змінити пароль» (FE-4): поточний пароль заповнений, новий відповідає правилам і відрізняється."""
+    if not old:
+        return "Введіть поточний пароль"
+    error = validate_new_password(new)
+    if error is None and new == old:
+        return "Новий пароль має відрізнятися від поточного"
+    return error
+
+
+def validate_delete_password(password: str) -> Optional[str]:
+    if not password:
+        return "Введіть пароль для підтвердження"
+    return None
