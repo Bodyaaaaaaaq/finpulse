@@ -7,10 +7,10 @@ from theme import NEGATIVE
 
 # (маршрут, назва, іконка) — розділи, які на мобільному ховаються під вкладку «Інше».
 MENU = [
+    ("/profile", "Профіль", ft.Icons.PERSON_OUTLINE),
     ("/game", "Гра «Пошук на карті»", ft.Icons.SPORTS_ESPORTS_OUTLINED),
     ("/shop", "Магазин", ft.Icons.STOREFRONT_OUTLINED),
     ("/shop/my-rewards", "Мої призи", ft.Icons.CARD_GIFTCARD_OUTLINED),
-    ("/profile", "Профіль", ft.Icons.PERSON_OUTLINE),
 ]
 
 
