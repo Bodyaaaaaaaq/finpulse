@@ -12,6 +12,9 @@ class FakePage(SimpleNamespace):
     def update(self):
         pass
 
+    def run_task(self, handler, *args):  # сторінки курсів самі запускають завантаження — у тесті пропускаємо
+        pass
+
 
 @pytest.mark.parametrize("width", [360, 390, 720, 1280])
 @pytest.mark.parametrize("route", list(ROUTES) + ["/nope"])
