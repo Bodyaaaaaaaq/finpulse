@@ -129,3 +129,18 @@ def page_column(ctx, controls: list, *, spacing: int = 12) -> ft.Control:
         [ft.Container(column, col={"xs": 12, "md": 9, "lg": 7, "xl": 5, "xxl": 4})],
         alignment=ft.MainAxisAlignment.CENTER,
     )
+
+
+def pill_button(text: str, on_click) -> ft.Button:
+    """Світла капсула в шапці сторінки («Редагувати» / «Готово» в макеті)."""
+    return ft.Button(
+        content=text,
+        on_click=on_click,
+        height=40,
+        style=ft.ButtonStyle(
+            bgcolor=FIELD_BG,
+            color="black",
+            shape=ft.StadiumBorder(),
+            text_style=ft.TextStyle(size=14, weight=ft.FontWeight.W_600),
+        ),
+    )

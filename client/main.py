@@ -3,6 +3,7 @@ import flet as ft
 from config import APP_TITLE
 from router import Router
 from services.session_service import restore_session
+from state.home_state import HomeStore, home_state
 from state.session_store import SessionStore
 from theme import apply_theme
 
@@ -16,6 +17,7 @@ async def main(page: ft.Page) -> None:
     page.services.append(prefs)
     store = SessionStore(prefs)
     await restore_session(store)
+    await home_state.load(HomeStore(prefs))  # вибір курсів на головній
 
     router = Router(page, store)
     router.attach()
