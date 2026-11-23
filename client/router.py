@@ -6,8 +6,8 @@ import flet as ft
 
 from components.navbar import build_navigation_bar, build_navigation_rail
 from config import WIDE_BREAKPOINT
-from pages import (converter, crypto, game, home, login, more, my_rewards, news,
-                   not_found, profile, register, shop)
+from pages import (converter, crypto, currencies, game, home, login, metals, more, my_rewards,
+                   news, not_found, profile, register, shop)
 from services.api_client import api
 from services.session_service import sign_out
 from state.auth_state import auth_state
@@ -29,6 +29,8 @@ ROUTES: dict[str, RouteDef] = {r.path: r for r in [
     RouteDef("/converter", converter.build),
     RouteDef("/news", news.build),
     RouteDef("/crypto", crypto.build),
+    RouteDef("/currency", currencies.build),
+    RouteDef("/metals", metals.build),
     RouteDef("/more", more.build),
     RouteDef("/game", game.build),
     RouteDef("/shop", shop.build),
@@ -37,8 +39,8 @@ ROUTES: dict[str, RouteDef] = {r.path: r for r in [
 ]}
 NOT_FOUND = RouteDef("*", not_found.build)
 
-# Курси валют і металів тепер на головній (вибір що показувати — кнопка «Редагувати»).
-REDIRECTS = {"/currency": "/", "/metals": "/"}
+# Старі адреси, що ведуть на інші сторінки (зараз порожньо: /currency і /metals — повні списки з головної).
+REDIRECTS: dict[str, str] = {}
 
 
 def normalize(route: Optional[str]) -> str:

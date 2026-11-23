@@ -17,6 +17,8 @@ from theme import MUTED, NEGATIVE
 SECTIONS = [(CURRENCY, "Курси обміну"), (CRYPTO, "Криптовалюти"), (METAL, "Метали")]
 # Підпис поруч із заголовком секції: ціни металів — за 1 грам, а не за унцію
 SECTION_CAPTIONS = {METAL: "ціна за грам"}
+# Куди веде кнопка «Усі» біля заголовка секції (повний список)
+SECTION_ROUTES = {CURRENCY: "/currency", CRYPTO: "/crypto", METAL: "/metals"}
 CRYPTO_LIMIT = 20  # скільки монет пропонуємо в режимі «Редагувати»
 
 
@@ -60,13 +62,22 @@ def build(ctx) -> ft.Control:
             await home_state.save()
         return on_change
 
-    def section_title(kind: str, text: str) -> ft.Control:
+    def open_all(route: str):
+        async def on_click(e=None) -> None:
+            await ctx.go(route)
+        return on_click
+
+    def section_title(kind: str, text: str, with_all: bool = False) -> ft.Control:
         title = ft.Text(text, size=22, weight=ft.FontWeight.W_600)
         caption = SECTION_CAPTIONS.get(kind)
-        if not caption:
-            return title
-        return ft.Row([title, ft.Text(caption, size=13, weight=ft.FontWeight.W_600, color=MUTED)],
-                      spacing=8, vertical_alignment=ft.CrossAxisAlignment.END)
+        left = title if not caption else ft.Row(
+            [title, ft.Text(caption, size=13, weight=ft.FontWeight.W_600, color=MUTED)],
+            spacing=8, vertical_alignment=ft.CrossAxisAlignment.END)
+        if not with_all:
+            return left
+        return ft.Row([left, link_button("Усі ›", open_all(SECTION_ROUTES[kind]))],
+                      alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                      vertical_alignment=ft.CrossAxisAlignment.CENTER)
 
     def render() -> None:
         editing = state["editing"]
@@ -98,7 +109,7 @@ def build(ctx) -> ft.Control:
             for kind, title in SECTIONS:
                 rows = [i for i in shown if i.kind == kind]
                 if rows:
-                    controls.append(section_title(kind, title))
+                    controls.append(section_title(kind, title, with_all=True))
                     controls += [home_row(i) for i in rows]
             if not shown:
                 controls.append(Card(ft.Text("Нічого не вибрано. Натисніть «Редагувати», щоб додати курси.",

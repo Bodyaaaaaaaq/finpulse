@@ -58,10 +58,16 @@ def test_unknown_route_is_404_for_everyone():
     assert r.redirect_target("/nope") is None
 
 
-def test_old_currency_and_metals_routes_redirect_home():
+def test_full_lists_of_currency_and_metals_are_private_pages():
     r = make_router()
-    assert r.redirect_target("/currency") == "/"
-    assert r.redirect_target("/metals") == "/"
+    assert r.redirect_target("/currency") == "/login" and r.redirect_target("/metals") == "/login"
+    auth_state.set_session("t")
+    assert r.redirect_target("/currency") is None and r.redirect_target("/metals") is None
+
+
+def test_full_list_pages_highlight_home_tab():
+    from components.navbar import mobile_index
+    assert mobile_index("/currency") == 0 and mobile_index("/metals") == 0
 
 
 def test_wide_breakpoint():
