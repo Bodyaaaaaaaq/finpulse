@@ -55,8 +55,8 @@ def home_row(item: RateItem) -> ft.Control:
     )
 
 
-def crypto_row(item: RateItem) -> ft.Control:
-    """Рядок сторінки «Криптовалюти»: символ + назва ліворуч, ціна й зміна за 24 год праворуч."""
+def list_row(item: RateItem) -> ft.Control:
+    """Рядок повного списку (криптовалюти, валюти, метали): код + назва ліворуч, ціна й зміна праворуч."""
     return Card(
         ft.Row(
             [
@@ -73,6 +73,9 @@ def crypto_row(item: RateItem) -> ft.Control:
         ),
         padding=12,
     )
+
+
+crypto_row = list_row  # назва, під якою рядок використовує сторінка «Криптовалюти»
 
 
 def edit_row(item: RateItem, selected: bool, on_change) -> ft.Control:

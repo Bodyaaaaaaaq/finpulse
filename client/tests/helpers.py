@@ -53,3 +53,7 @@ class FakePage:
 class Ctx:
     def __init__(self, wide=False):
         self.page, self.is_wide = FakePage(1280 if wide else 390), wide
+        self.went = []  # маршрути, на які сторінка перейшла через ctx.go
+
+    async def go(self, route):
+        self.went.append(route)

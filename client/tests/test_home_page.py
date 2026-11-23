@@ -182,3 +182,28 @@ async def _async(value):
 def test_wide_layout_is_centered(state, data):
     _, page = open_home(wide=True)
     assert isinstance(page, ft.ResponsiveRow)
+
+
+def all_buttons(page):
+    return [b for b in find(page, ft.TextButton) if b.content.value == "Усі ›"]
+
+
+def test_each_section_has_all_button_leading_to_full_list(state, data):
+    ctx, page = open_home()
+    buttons = all_buttons(page)
+    assert len(buttons) == 3
+    for button, route in zip(buttons, ("/currency", "/crypto", "/metals")):
+        run(button.on_click(None))
+        assert ctx.went[-1] == route
+
+
+def test_all_button_only_for_sections_that_are_shown(state, data):
+    state.selected = ["currency:USD"]  # лише одна валюта на головній
+    _, page = open_home()
+    assert len(all_buttons(page)) == 1
+
+
+def test_no_all_buttons_in_edit_mode(state, data):
+    _, page = open_home()
+    run(edit_button(page).on_click(None))
+    assert all_buttons(page) == []
